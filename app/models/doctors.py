@@ -18,12 +18,11 @@ class Doctor(Base):
     )
     user_id = Column(
         UUID(as_uuid=True),
-        Foreignkey("users.id"),
-        nullable=False
+        Foreignkey("users.id")
     )
     name = Column(String(100), nullable=False)
     specialization = Column(String(100), nullable=False)
-    Phone_number = Column(String(15), nullable=False)
+    Phone_number = Column(String(15),unique=True, nullable=False)
     email = Column(String(100), unique=True, index=true, nullable=False)
     department = Column(String(100), nullable=False)
     years_of_experience=Column(Integer, nullable=False)
@@ -37,4 +36,8 @@ class Doctor(Base):
         onupdate=datetime.utcnow
     )
     
-    appointments =relationship("Appointment",back_populates="doctor")
+    users =relationship("Users",back_populates="doctor")
+    appointment =relationship("Appointment",back_populates="doctor")
+    medical_history = relationship("Medical_history", back_populates="doctor")
+    prescription = relationship("Prescription", back_populates="doctor")
+    bill = relationship("Bill", back_populates="doctor")

@@ -18,13 +18,12 @@ class Patient(Base):
     )
     user_id = Column(
         UUID(as_uuid=True),
-        Foreignkey("users.id"),
-        nullable=False
+        Foreignkey("users.id")
     )
     name = Column(String(50), nullable=False)
     Gender = Column(String(20), nullable=False)
     Age = Column(Integer, nullable=False)
-    Phone_number = Column(String(15), nullable=False)
+    Phone_number = Column(String(15),unique=True, nullable=False)
     email = Column(String(100), unique=True, index=true, nullable=False)
     blood_group = Column(String(5), nullable=True)
     emergency_contact = Column(String(15), nullable=True)
@@ -38,4 +37,8 @@ class Patient(Base):
         onupdate=datetime.utcnow
     )
     
-    appointments = relationship("Appointment", back_populates="patients") 
+    users = relationship("User", back_populates="patient")
+    appointments = relationship("Appointment", back_populates="patient")
+    medical_history = relationship("Medical_history",back_populates="patient")
+    prescription = relationship("Prescription", back_populates="patient")
+    bill = relationship("Bill", back_populates="patient") 

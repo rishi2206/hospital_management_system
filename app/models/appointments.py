@@ -18,13 +18,11 @@ class Appointment(Base):
     )
     patient_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("patients.id"),
-        nullable=False
-    )
+        ForeignKey("patients.id")
+        )
     doctor_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("doctors.id"),
-        nullable=False
+        ForeignKey("doctors.id")
     )
     appointment_date = Column(Date, nullable=False)
     appointment_time = Column(Time, nullable=False)
@@ -41,5 +39,6 @@ class Appointment(Base):
     )
     
     patient = relationship("Patient", back_populates="appointment")
-    doctor = relationship("Doctor",back_populates="appointments")
-    
+    doctor = relationship("Doctor",back_populates="appointment")
+    prescription = relationship("Prescription", back_populates="appointment", uselist=False)
+    bill = relationship("Bill", back_populates="appointment", uselist=False)

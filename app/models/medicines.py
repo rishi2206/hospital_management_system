@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Integer, Date
+from sqlalchemy import Column, String, Integer, Date, Text, Numeric
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
 
@@ -15,7 +15,19 @@ class Medicine(Base):
         index=True
     )
     medicine_name = Column(String(100), nullable=False)
+    description = Column(Text,nullable=True)
     stock = Column(Integer,nullable=False)
     expiry_date = Column(Date, nullable=False)
     manufacture = Column(String, nullable=False)
-    price = Column(Integer, nullable=False)
+    price = Column(Numeric(10,2), nullable=False)
+    created_at = Column(
+        DateTime,
+        default=datatime.utcnow
+    )
+    updated_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datatime.utcnow
+    )
+    
+    prescription_items = relationship("Prescription_item", back_populates="medicine")
