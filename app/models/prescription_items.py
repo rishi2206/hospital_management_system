@@ -21,7 +21,7 @@ class Prescription_items(Base):
     )
     medicine_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("medicines.id")
+        ForeignKey("medicine.id")
     )
     dosage = Column(String(50), nullable=False)
     frequency = Column(String(50),nullable=False)

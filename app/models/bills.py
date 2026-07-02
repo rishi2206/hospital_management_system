@@ -22,7 +22,7 @@ class Bill(Base):
     )
     patient_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("patient.id"),
+        ForeignKey("patients.id"),
     )
     doctor_id = Column(
         UUID(as_uuid=True),
@@ -45,5 +45,5 @@ class Bill(Base):
     )
     
     appointment = relationship("Appointment", back_populates="bill")
-    patient = relationship("Patient", back_populates="bill")
+    patient = relationship("Patient", back_populates="bills")
     doctor = relationship("Doctor", back_populates="bill")

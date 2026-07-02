@@ -17,7 +17,7 @@ class Medical_history(Base):
     )
     patient_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("patient.id"),
+        ForeignKey("patients.id"),
     )
     doctor_id = Column(
         UUID(as_uuid=True),
