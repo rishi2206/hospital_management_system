@@ -38,7 +38,7 @@ class Appointment(Base):
         onupdate=datetime.utcnow
     )
     
-    patient = relationship("Patient", back_populates="appointment")
+    patient = relationship("Patient", back_populates="appointments")
     doctor = relationship("Doctor",back_populates="appointment")
     prescription = relationship("Prescription", back_populates="appointment", uselist=False)
     bill = relationship("Bill", back_populates="appointment", uselist=False)

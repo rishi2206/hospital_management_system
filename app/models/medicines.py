@@ -31,4 +31,4 @@ class Medicine(Base):
         onupdate=datetime.utcnow
     )
     
-    prescription_items = relationship("Prescription_item", back_populates="medicine")
+    prescription_items = relationship("Prescription_items", back_populates="medicine")

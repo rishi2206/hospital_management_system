@@ -37,7 +37,7 @@ class Patient(Base):
         onupdate=datetime.utcnow
     )
     
-    users = relationship("User", back_populates="patient")
+    users = relationship("Users", back_populates="patient")
     appointments = relationship("Appointment", back_populates="patient")
     medical_history = relationship("Medical_history",back_populates="patient")
     prescription = relationship("Prescription", back_populates="patient")
