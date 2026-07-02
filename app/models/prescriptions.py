@@ -1,9 +1,10 @@
 import uuid
-from sqlalchemy import Column, String, Integer, Date, ForeignKey, Text
+from sqlalchemy import Column, String, Integer, Date, ForeignKey, Text, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
-from app.database import Base
+from app.db.database import Base
 
 class Prescription(Base):
     __tablename__ = "prescriptions"
@@ -28,13 +29,13 @@ class Prescription(Base):
     )
     instructions = Column(Text, nullable=True)
     created_at = Column(
-        DataTime,
-        default=datatime.utcnow
+        DateTime,
+        default=datetime.utcnow
     )
     updated_at = Column(
-        DataTime,
-        default=datatime.utcnow,
-        onupdate=datatime.utcnow
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
     )
     
     patient = relationship("Patient", back_populates="prescription")

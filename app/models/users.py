@@ -1,9 +1,10 @@
 import uuid
-from sqlalchemy import Column, String, Integer, Date, Boolean, ForeignKey
+from sqlalchemy import Column, String, Integer, Date, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
+from sqlalchemy.dialects.postgresql import UUID
 
-from app.database import Base
+from app.db.database import Base
 
 
 class Users(Base):
@@ -11,7 +12,7 @@ class Users(Base):
     
     id = Column(Integer,primary_key=True,nullable=False,index=True)
     username = Column(String, unique=True, nullable=False)
-    email = Column(String, unique=True, index=true, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     role_id = Column(
         UUID(as_uuid=True),
@@ -24,7 +25,7 @@ class Users(Base):
     )
     updated_at = Column(
         DateTime,
-        default=datatime.utcnow,
+        default=datetime.utcnow,
         onupdate=datetime.utcnow
     )
     

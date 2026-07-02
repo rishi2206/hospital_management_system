@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
+
 
 from app.db.database import Base
 
@@ -8,14 +9,14 @@ class Role(Base):
     __tablename__ = "roles"
     
     id = Column(Integer, primary_key=True, nullable=False,index=True)
-    name = Column(string, unique=true , nullable=False)
+    name = Column(String, unique=True , nullable=False)
     description = Column(Text,nullable=True)
     created_at = Column(
         DateTime,
         default=datetime.utcnow
     )
     updated_at = Column(
-        DataTime,
+        DateTime,
         default=datetime.utcnow,
         onupdate=datetime.utcnow
     )

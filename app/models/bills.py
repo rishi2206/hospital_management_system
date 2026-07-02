@@ -1,9 +1,10 @@
 import uuid
-from sqlalchemy import Column, String, Integer, Date, ForeignKey, Text, Numeric
+from sqlalchemy import Column, String, Integer, Date, ForeignKey, Text, Numeric, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
-from app.database import Base
+from app.db.database import Base
 
 class Bill(Base):
     __tablename__ = "bill"

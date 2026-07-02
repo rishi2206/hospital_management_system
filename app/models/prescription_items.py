@@ -2,8 +2,9 @@ import uuid
 from sqlalchemy import Column, String, Integer, Date, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
-from app.database import Base
+from app.db.database import Base
 
 class Prescription_items(Base):
     __tablename__ = "prescription_items"
