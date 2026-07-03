@@ -14,6 +14,7 @@ class Users(Base):
         UUID(as_uuid=True),
         primary_key=True,
         nullable=False,
+        default=uuid.uuid4,
         index=True
     )
     username = Column(String, unique=True, nullable=False)

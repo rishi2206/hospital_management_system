@@ -14,6 +14,7 @@ class Role(Base):
         UUID(as_uuid=True),
         primary_key=True,
         nullable=False,
+        default=uuid.uuid4,
         index=True
     )
     name = Column(String, unique=True , nullable=False)
