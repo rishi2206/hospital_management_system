@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from app.schemas.user import UserCreate, UserLogin
 from app.models.users import Users
 
-from app.curd import user,role
+from app.crud import user,role
 from app.core.security import (
     hash_password,
     verify_password,

@@ -11,10 +11,10 @@ from app.models.roles import Role
 from app.models.prescriptions import Prescription
 from app.models.prescription_items import Prescription_items
 from app.models.patients import Patient
-from app.models.medicines import Medicine
+from app.models.medicine import Medicine
 from app.models.medical_history import Medical_history
 from app.models.doctors import Doctor
-from app.models.bills import Bill
+from app.models.bill import Bill
 from app.models.appointments import Appointment
 
 

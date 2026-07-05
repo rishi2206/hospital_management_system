@@ -5,7 +5,7 @@ from jose import JWTError
 
 from app.db.database import get_db
 from app.core.security import decode_access_token
-from app.curd import user
+from app.crud import user
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login"

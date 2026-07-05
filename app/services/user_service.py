@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.schemas.user import UserUpdate
-from app.curd import user
+from app.crud import user
 from app.core.security import hash_password
 
 
