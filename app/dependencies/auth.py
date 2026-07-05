@@ -12,7 +12,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 )
 
 def get_current_user(
-    token: str = (oauth2_scheme),
+    token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ):
     try:

@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.schemas.patient import PatientCreate, PatientUpdate
 from app.models.patients import Patient
-from app.curd import patient
+from app.crud import patient
 
 
 def get_all_patients(db: Session):
