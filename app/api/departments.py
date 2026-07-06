@@ -1,50 +1,78 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
 from app.db.database import get_db
-from app.models.departments import Department
 from app.schemas.department import DepartmentCreate, DepartmentResponse
+from app.services import department_service
 
-router = APIRouter(prefix="/departments", tags=["Departments"])
+router = APIRouter(
+    prefix="/departments",
+    tags=["Departments"]
+)
 
 
-# ➤ Create Department
+# Create Department
 @router.post("/", response_model=DepartmentResponse)
-def create_department(data: DepartmentCreate, db: Session = Depends(get_db)):
-    new_dept = Department(**data.dict())
-    db.add(new_dept)
-    db.commit()
-    db.refresh(new_dept)
-    return new_dept
+def create_department(
+    department: DepartmentCreate,
+    db: Session = Depends(get_db)
+):
+    return department_service.create_department(db, department)
 
 
-# ➤ Get all departments
+# Get all Departments
 @router.get("/", response_model=list[DepartmentResponse])
-def get_departments(db: Session = Depends(get_db)):
-    return db.query(Department).all()
+def get_departments(
+    db: Session = Depends(get_db)
+):
+    return department_service.get_all_departments(db)
 
 
-# ➤ Get by ID
-@router.get("/{dept_id}", response_model=DepartmentResponse)
-def get_department(dept_id: UUID, db: Session = Depends(get_db)):
-    dept = db.query(Department).filter(Department.id == dept_id).first()
+# Get Department by ID
+@router.get("/{department_id}", response_model=DepartmentResponse)
+def get_department(
+    department_id: UUID,
+    db: Session = Depends(get_db)
+):
+    department = department_service.get_department_by_id(db, department_id)
 
-    if not dept:
+    if not department:
         raise HTTPException(status_code=404, detail="Department not found")
 
-    return dept
+    return department
 
 
-# ➤ Delete department
-@router.delete("/{dept_id}")
-def delete_department(dept_id: UUID, db: Session = Depends(get_db)):
-    dept = db.query(Department).filter(Department.id == dept_id).first()
+# Update Department
+@router.put("/{department_id}", response_model=DepartmentResponse)
+def update_department(
+    department_id: UUID,
+    department: DepartmentCreate,
+    db: Session = Depends(get_db)
+):
+    existing_department = department_service.get_department_by_id(db, department_id)
 
-    if not dept:
+    if not existing_department:
         raise HTTPException(status_code=404, detail="Department not found")
 
-    db.delete(dept)
-    db.commit()
+    existing_department.name = department.name
+    existing_department.description = department.description
 
-    return {"message": "Department deleted"}
+    return department_service.update_department(db, existing_department)
+
+
+# Delete Department
+@router.delete("/{department_id}")
+def delete_department(
+    department_id: UUID,
+    db: Session = Depends(get_db)
+):
+    department = department_service.get_department_by_id(db, department_id)
+
+    if not department:
+        raise HTTPException(status_code=404, detail="Department not found")
+
+    department_service.delete_department(db, department)
+
+    return {"message": "Department deleted successfully"}

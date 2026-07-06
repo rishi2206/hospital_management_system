@@ -1,63 +1,83 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
 from app.db.database import get_db
-from app.models.doctors import Doctor
 from app.schemas.doctor import DoctorCreate, DoctorResponse
+from app.services import doctor_service
 
-router = APIRouter(prefix="/doctors", tags=["Doctors"])
+router = APIRouter(
+    prefix="/doctors",
+    tags=["Doctors"]
+)
 
 
-# ➤ Create Doctor
+# Create Doctor
 @router.post("/", response_model=DoctorResponse)
-def create_doctor(doctor: DoctorCreate, db: Session = Depends(get_db)):
-    new_doctor = Doctor(**doctor.dict())
-    db.add(new_doctor)
-    db.commit()
-    db.refresh(new_doctor)
-    return new_doctor
+def create_doctor(
+    doctor: DoctorCreate,
+    db: Session = Depends(get_db)
+):
+    return doctor_service.create_doctor(db, doctor)
 
 
-# ➤ Get all doctors
+# Get all Doctors
 @router.get("/", response_model=list[DoctorResponse])
-def get_doctors(db: Session = Depends(get_db)):
-    return db.query(Doctor).all()
+def get_doctors(
+    db: Session = Depends(get_db)
+):
+    return doctor_service.get_all_doctors(db)
 
 
-# ➤ Get doctor by ID
+# Get Doctor by ID
 @router.get("/{doctor_id}", response_model=DoctorResponse)
-def get_doctor(doctor_id: UUID, db: Session = Depends(get_db)):
-    doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
+def get_doctor(
+    doctor_id: UUID,
+    db: Session = Depends(get_db)
+):
+    doctor = doctor_service.get_doctor_by_id(db, doctor_id)
+
     if not doctor:
         raise HTTPException(status_code=404, detail="Doctor not found")
+
     return doctor
 
 
-# ➤ Update doctor
+# Update Doctor
 @router.put("/{doctor_id}", response_model=DoctorResponse)
-def update_doctor(doctor_id: UUID, updated: DoctorCreate, db: Session = Depends(get_db)):
-    doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
+def update_doctor(
+    doctor_id: UUID,
+    doctor: DoctorCreate,
+    db: Session = Depends(get_db)
+):
+    existing_doctor = doctor_service.get_doctor_by_id(db, doctor_id)
 
-    if not doctor:
+    if not existing_doctor:
         raise HTTPException(status_code=404, detail="Doctor not found")
 
-    for key, value in updated.dict().items():
-        setattr(doctor, key, value)
+    existing_doctor.user_id = doctor.user_id
+    existing_doctor.name = doctor.name
+    existing_doctor.specialization = doctor.specialization
+    existing_doctor.Phone_number = doctor.phone_number
+    existing_doctor.email = doctor.email
+    existing_doctor.department = doctor.department
+    existing_doctor.years_of_experience = doctor.years_of_experience
 
-    db.commit()
-    db.refresh(doctor)
-    return doctor
+    return doctor_service.update_doctor(db, existing_doctor)
 
 
-# ➤ Delete doctor
+# Delete Doctor
 @router.delete("/{doctor_id}")
-def delete_doctor(doctor_id: UUID, db: Session = Depends(get_db)):
-    doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
+def delete_doctor(
+    doctor_id: UUID,
+    db: Session = Depends(get_db)
+):
+    doctor = doctor_service.get_doctor_by_id(db, doctor_id)
 
     if not doctor:
         raise HTTPException(status_code=404, detail="Doctor not found")
 
-    db.delete(doctor)
-    db.commit()
+    doctor_service.delete_doctor(db, doctor)
+
     return {"message": "Doctor deleted successfully"}

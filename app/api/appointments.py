@@ -1,41 +1,42 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
 from app.db.database import get_db
-from app.models.appointments import Appointment
 from app.schemas.appointment import AppointmentCreate, AppointmentResponse
+from app.services import appointment_service
 
-router = APIRouter(prefix="/appointments", tags=["Appointments"])
+router = APIRouter(
+    prefix="/appointments",
+    tags=["Appointments"]
+)
 
 
-# ➤ Create Appointment
+# Create Appointment
 @router.post("/", response_model=AppointmentResponse)
-def create_appointment(data: AppointmentCreate, db: Session = Depends(get_db)):
-    new_appointment = Appointment(
-        patient_id=data.patient_id,
-        doctor_id=data.doctor_id,
-        appointment_date=data.appointment_date,
-        reason=data.reason,
-        status="pending"
-    )
-
-    db.add(new_appointment)
-    db.commit()
-    db.refresh(new_appointment)
-    return new_appointment
+def create_appointment(
+    appointment: AppointmentCreate,
+    db: Session = Depends(get_db)
+):
+    return appointment_service.create_appointment(db, appointment)
 
 
-# ➤ Get all appointments
+# Get all Appointments
 @router.get("/", response_model=list[AppointmentResponse])
-def get_appointments(db: Session = Depends(get_db)):
-    return db.query(Appointment).all()
+def get_appointments(
+    db: Session = Depends(get_db)
+):
+    return appointment_service.get_all_appointments(db)
 
 
-# ➤ Get appointment by ID
+# Get Appointment by ID
 @router.get("/{appointment_id}", response_model=AppointmentResponse)
-def get_appointment(appointment_id: UUID, db: Session = Depends(get_db)):
-    appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+def get_appointment(
+    appointment_id: UUID,
+    db: Session = Depends(get_db)
+):
+    appointment = appointment_service.get_appointment_by_id(db, appointment_id)
 
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
@@ -43,14 +44,38 @@ def get_appointment(appointment_id: UUID, db: Session = Depends(get_db)):
     return appointment
 
 
-# ➤ Update status
-@router.put("/{appointment_id}")
-def update_status(appointment_id: UUID, status: str, db: Session = Depends(get_db)):
-    appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+# Update Appointment
+@router.put("/{appointment_id}", response_model=AppointmentResponse)
+def update_appointment(
+    appointment_id: UUID,
+    appointment: AppointmentCreate,
+    db: Session = Depends(get_db)
+):
+    existing_appointment = appointment_service.get_appointment_by_id(db, appointment_id)
+
+    if not existing_appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+
+    existing_appointment.patient_id = appointment.patient_id
+    existing_appointment.doctor_id = appointment.doctor_id
+    existing_appointment.appointment_date = appointment.appointment_date
+    existing_appointment.appointment_time = appointment.appointment_time
+    existing_appointment.notes = appointment.notes
+
+    return appointment_service.update_appointment(db, existing_appointment)
+
+
+# Delete Appointment
+@router.delete("/{appointment_id}")
+def delete_appointment(
+    appointment_id: UUID,
+    db: Session = Depends(get_db)
+):
+    appointment = appointment_service.get_appointment_by_id(db, appointment_id)
 
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
 
-    appointment.status = status
-    db.commit()
-    return {"message": "Status updated"}
+    appointment_service.delete_appointment(db, appointment)
+
+    return {"message": "Appointment deleted successfully"}
