@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from app.dependencies.auth import get_current_user
 
 def require_role(*roles):
@@ -9,7 +9,7 @@ def require_role(*roles):
 
         if current_user.role.name not in roles:
             raise HTTPException(
-                status_code=403,
+                status_code=HTTP_403_FORBIDDEN,
                 detail="Permission denied"
             )
 

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.schemas.user import UserCreate, UserLogin
 from app.models.users import Users
+from fastapi import HTTPException, status
 
 from app.crud import user,role
 from app.core.security import (
@@ -11,22 +12,28 @@ from app.core.security import (
 
 def register_user(db: Session, user_data: UserCreate):
     
-    existing_user = user.get_user_by_email(
+    existing_user: Users | None = user.get_user_by_email(
         db,
         user_data.email
     )
     
     if existing_user:
-        raise ValueError("Email already exists")
-    
+        raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Email already exists"
+    )
+            
     existing_role = role.get_role_by_id(
         db,
         user_data.role_id
     )
     
     if not existing_role:
-        raise ValueError("Invalid role")
-    
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid role"
+            )
+            
     hashed_password = hash_password(
         user_data.password
     )
@@ -52,13 +59,19 @@ def login_user(db:Session , login_data:UserLogin):
     )
     
     if not user_obj:
-        raise ValueError("Invalid email or password")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+            )
     
     if not verify_password(
-        login_data.hashed_password,
+        login_data.password,
         user_obj.hashed_password
     ):
-        raise ValueError("Invalid email or password")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+            )
     
     token = create_access_token(
         {
