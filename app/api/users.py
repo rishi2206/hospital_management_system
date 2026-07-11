@@ -4,7 +4,7 @@ from fastapi import APIRouter,Depends,HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.schemas.user import UserUpdate,UserResponse
+from app.schemas.user import UserUpdate,UserResponse,UserCreate
 from app.services import user_service
 from app.dependencies.auth import get_current_user
 from app.dependencies.role import require_role
@@ -13,6 +13,14 @@ router = APIRouter(
     prefix="/users",
     tags=["Users"]
 )
+
+# Create user
+@router.post("/", response_model=UserResponse)
+def create_user(
+    user: UserCreate,
+    db: Session = Depends(get_db)
+):
+    return user_service.create_user(db, user)
 
 #get all users
 @router.get("/",response_model=list[UserResponse])

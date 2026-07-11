@@ -1,9 +1,19 @@
 from sqlalchemy.orm import Session
-
-from app.schemas.user import UserUpdate
+from app.schemas.user import UserCreate, UserUpdate, UserResponse
 from app.crud import user
 from app.core.security import hash_password
+from app.repositories import user_repository
+from app.models.users import Users
 
+def create_user(db: Session, user: UserCreate):
+    db_user = Users(
+        username=user.username,
+        email=user.email,
+        hashed_password=hash_password(user.password),
+        role_id=user.role_id
+    )
+
+    return user_repository.create(db, db_user)
 
 def get_all_users(db: Session):
     return user.get_all_users(db)
@@ -11,7 +21,7 @@ def get_all_users(db: Session):
 def get_user_by_id(db: Session, user_id):
     user_obj = user.get_user_by_id(db,user_id)
     
-    if not user_id:
+    if not user_obj:
         raise ValueError("User not Found")
     
     return user_obj
