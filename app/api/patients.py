@@ -19,7 +19,7 @@ router = APIRouter(
 def create_patient(
     patient: PatientCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(require_role("Admin"))
+    current_user = Depends(require_role("Admin","Receptionist"))
 ):
     return patient_service.create_patient(db, patient)
 
@@ -49,7 +49,7 @@ def update_patient(
     patient_id: UUID,
     patient: PatientUpdate,
     db: Session = Depends(get_db),
-    current_user = Depends(require_role("Admin"))
+    current_user = Depends(require_role("Admin","Receptionist"))
 ):
     try:
         return patient_service.update_patient(db, patient_id, patient)

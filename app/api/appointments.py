@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.appointment import AppointmentCreate, AppointmentResponse
 from app.services import appointment_service
+from app.dependencies.auth import get_current_user
+from app.dependencies.role import require_role
 
 router = APIRouter(
     prefix="/appointments",
@@ -17,7 +19,8 @@ router = APIRouter(
 @router.post("/", response_model=AppointmentResponse)
 def create_appointment(
     appointment: AppointmentCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("Admin", "Receptionist"))
 ):
     return appointment_service.create_appointment(db, appointment)
 
@@ -25,7 +28,8 @@ def create_appointment(
 # Get all Appointments
 @router.get("/", response_model=list[AppointmentResponse])
 def get_appointments(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     return appointment_service.get_all_appointments(db)
 
@@ -34,7 +38,8 @@ def get_appointments(
 @router.get("/{appointment_id}", response_model=AppointmentResponse)
 def get_appointment(
     appointment_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     appointment = appointment_service.get_appointment_by_id(db, appointment_id)
 
@@ -49,7 +54,8 @@ def get_appointment(
 def update_appointment(
     appointment_id: UUID,
     appointment: AppointmentCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("Admin", "Receptionist"))
 ):
     existing_appointment = appointment_service.get_appointment_by_id(db, appointment_id)
 
@@ -69,7 +75,8 @@ def update_appointment(
 @router.delete("/{appointment_id}")
 def delete_appointment(
     appointment_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("Admin", "Receptionist"))
 ):
     appointment = appointment_service.get_appointment_by_id(db, appointment_id)
 
