@@ -43,7 +43,10 @@ def update_user(db: Session, user_id, user_data: UserUpdate):
 
     if user_data.role_id:
         user_obj.role_id = user_data.role_id
-        
+
+    if user_data.is_active is not None:
+        user_obj.is_active = user_data.is_active
+
     return user.update_user(db, user_obj)
 
 

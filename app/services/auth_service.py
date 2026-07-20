@@ -45,10 +45,27 @@ def register_user(db: Session, user_data: UserCreate):
         role_id = user_data.role_id
     )
     
-    return user.create_user(
+    created_user = user.create_user(
         db,
         new_user
     )
+
+    token = create_access_token(
+        {
+            "sub": str(created_user.id)
+        }
+    )
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": str(created_user.id),
+            "username": created_user.username,
+            "email": created_user.email,
+            "role": existing_role.name.lower()
+        }
+    }
     
 
 def login_user(db:Session , login_data:UserLogin):
@@ -78,8 +95,14 @@ def login_user(db:Session , login_data:UserLogin):
             "sub": str(user_obj.id)
         }
     )
-    
+
     return {
         "access_token": token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "user": {
+            "id": str(user_obj.id),
+            "username": user_obj.username,
+            "email": user_obj.email,
+            "role": user_obj.role.name.lower()
+        }
     }

@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.doctor import DoctorCreate, DoctorResponse
 from app.services import doctor_service
+from app.dependencies.auth import get_current_user
+from app.dependencies.role import require_role
 
 router = APIRouter(
     prefix="/doctors",
@@ -17,7 +19,8 @@ router = APIRouter(
 @router.post("/", response_model=DoctorResponse)
 def create_doctor(
     doctor: DoctorCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("Admin"))
 ):
     return doctor_service.create_doctor(db, doctor)
 
@@ -25,7 +28,8 @@ def create_doctor(
 # Get all Doctors
 @router.get("/", response_model=list[DoctorResponse])
 def get_doctors(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     return doctor_service.get_all_doctors(db)
 
@@ -34,7 +38,8 @@ def get_doctors(
 @router.get("/{doctor_id}", response_model=DoctorResponse)
 def get_doctor(
     doctor_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     doctor = doctor_service.get_doctor_by_id(db, doctor_id)
 
@@ -49,7 +54,8 @@ def get_doctor(
 def update_doctor(
     doctor_id: UUID,
     doctor: DoctorCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("Admin"))
 ):
     existing_doctor = doctor_service.get_doctor_by_id(db, doctor_id)
 
@@ -71,7 +77,8 @@ def update_doctor(
 @router.delete("/{doctor_id}")
 def delete_doctor(
     doctor_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("Admin"))
 ):
     doctor = doctor_service.get_doctor_by_id(db, doctor_id)
 

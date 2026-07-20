@@ -3,7 +3,10 @@ from uuid import UUID
 
 
 class PatientCreate(BaseModel):
-    user_id: UUID
+    # Optional: a receptionist can register a walk-in patient who has no
+    # login account yet. If the patient later registers/logs in, an
+    # admin can link the two via PatientUpdate/linking their user_id.
+    user_id: UUID | None = None
     name: str
     Gender: str
     Age: int
@@ -14,6 +17,7 @@ class PatientCreate(BaseModel):
 
 
 class PatientUpdate(BaseModel):
+    user_id: UUID | None = None
     name: str | None = None
     Gender: str | None = None
     Age: int | None = None
@@ -25,7 +29,7 @@ class PatientUpdate(BaseModel):
 
 class PatientResponse(BaseModel):
     id: UUID
-    user_id: UUID
+    user_id: UUID | None = None
     name: str
     Gender: str
     Age: int

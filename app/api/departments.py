@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.department import DepartmentCreate, DepartmentResponse
 from app.services import department_service
+from app.dependencies.auth import get_current_user
+from app.dependencies.role import require_role
 
 router = APIRouter(
     prefix="/departments",
@@ -17,7 +19,8 @@ router = APIRouter(
 @router.post("/", response_model=DepartmentResponse)
 def create_department(
     department: DepartmentCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("Admin"))
 ):
     return department_service.create_department(db, department)
 
@@ -25,7 +28,8 @@ def create_department(
 # Get all Departments
 @router.get("/", response_model=list[DepartmentResponse])
 def get_departments(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     return department_service.get_all_departments(db)
 
@@ -34,7 +38,8 @@ def get_departments(
 @router.get("/{department_id}", response_model=DepartmentResponse)
 def get_department(
     department_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     department = department_service.get_department_by_id(db, department_id)
 
@@ -49,7 +54,8 @@ def get_department(
 def update_department(
     department_id: UUID,
     department: DepartmentCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("Admin"))
 ):
     existing_department = department_service.get_department_by_id(db, department_id)
 
@@ -66,7 +72,8 @@ def update_department(
 @router.delete("/{department_id}")
 def delete_department(
     department_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("Admin"))
 ):
     department = department_service.get_department_by_id(db, department_id)
 
